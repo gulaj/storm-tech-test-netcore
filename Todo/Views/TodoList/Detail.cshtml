@@ -12,7 +12,9 @@
 <div class="col-md-6">
 
     <ul class="list-group">
-
+        <li class="list-group-item">
+            <input type="checkbox" id="hide-done" name="Hide Done tasks" /> Hide mareked as Done tasks
+        </li>
         <li class="list-group-item">
             <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
                 <strong>Add New Item</strong>
@@ -44,7 +46,7 @@
 
                         @if (item.IsDone)
                         {
-                            <s>@item.Title</s>
+                            <s class="done">@item.Title</s>
                         }
                         else
                         {
