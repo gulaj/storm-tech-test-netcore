@@ -8,6 +8,8 @@ using Todo.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Todo.Services;
+using Todo.Services.Abstract;
 
 namespace Todo
 {
@@ -36,6 +38,11 @@ namespace Todo
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<ITodoItemsRepository, TodoItemsRepository>();
+            services.AddScoped<IToDoListRepository, ToDoListRepository>();
+            services.AddScoped<ITodoItemsService, TodoItemsService>();
+            services.AddScoped<ITodoListService, TodoListService>();
+
 
             services.AddControllers();
 

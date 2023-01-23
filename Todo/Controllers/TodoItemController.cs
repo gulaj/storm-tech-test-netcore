@@ -1,29 +1,34 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Todo.Data;
-using Todo.Data.Entities;
-using Todo.EntityModelMappers.TodoItems;
 using Todo.Models.TodoItems;
 using Todo.Services;
+using Todo.Services.Abstract;
 
 namespace Todo.Controllers
 {
     [Authorize]
     public class TodoItemController : Controller
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ITodoListService _todoListService;
 
-        public TodoItemController(ApplicationDbContext dbContext)
+        public TodoItemController(ITodoListService todoListService, ITodoItemsService todoItemsService)
         {
-            this.dbContext = dbContext;
+            _todoListService = todoListService;
+            _todoItemsService = todoItemsService;
         }
 
+        private readonly ITodoItemsService _todoItemsService;
+
+
+
+
         [HttpGet]
-        public IActionResult Create(int todoListId)
+        public async Task<IActionResult> Create(int todoListId)
         {
-            var todoList = dbContext.SingleTodoList(todoListId);
-            var fields = TodoItemCreateFieldsFactory.Create(todoList, User.Id());
+            var fields = await _todoListService.GetTodoItemCreateFields(todoListId, User.Id());
+
             return View(fields);
         }
 
@@ -32,20 +37,16 @@ namespace Todo.Controllers
         public async Task<IActionResult> Create(TodoItemCreateFields fields)
         {
             if (!ModelState.IsValid) { return View(fields); }
+            await _todoItemsService.CreateTodoItemAsync(fields.TodoListId, fields.ResponsiblePartyId, fields.Title, fields.Importance);
 
-            var item = new TodoItem(fields.TodoListId, fields.ResponsiblePartyId, fields.Title, fields.Importance);
-
-            await dbContext.AddAsync(item);
-            await dbContext.SaveChangesAsync();
 
             return RedirectToListDetail(fields.TodoListId);
         }
 
         [HttpGet]
-        public IActionResult Edit(int todoItemId)
+        public async Task<IActionResult> EditAsync(int todoItemId)
         {
-            var todoItem = dbContext.SingleTodoItem(todoItemId);
-            var fields = TodoItemEditFieldsFactory.Create(todoItem);
+            var fields = await _todoItemsService.GetSingleTodoItemAsync(todoItemId);
             return View(fields);
         }
 
@@ -55,14 +56,9 @@ namespace Todo.Controllers
         {
             if (!ModelState.IsValid) { return View(fields); }
 
-            var todoItem = dbContext.SingleTodoItem(fields.TodoItemId);
+            await _todoItemsService.UpdateSingleTodoItemAsync(fields);
 
-            TodoItemEditFieldsFactory.Update(fields, todoItem);
-
-            dbContext.Update(todoItem);
-            await dbContext.SaveChangesAsync();
-
-            return RedirectToListDetail(todoItem.TodoListId);
+            return RedirectToListDetail(fields.TodoListId);
         }
 
         private RedirectToActionResult RedirectToListDetail(int fieldsTodoListId)

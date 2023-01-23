@@ -3,38 +3,35 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Todo.Data;
 using Todo.Data.Entities;
-using Todo.EntityModelMappers.TodoLists;
 using Todo.Models.TodoLists;
 using Todo.Services;
+using Todo.Services.Abstract;
 
 namespace Todo.Controllers
 {
     [Authorize]
     public class TodoListController : Controller
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ITodoListService _todoListService;
         private readonly IUserStore<IdentityUser> userStore;
 
-        public TodoListController(ApplicationDbContext dbContext, IUserStore<IdentityUser> userStore)
+        public TodoListController(IUserStore<IdentityUser> userStore, ITodoListService todoListService)
         {
-            this.dbContext = dbContext;
             this.userStore = userStore;
+            _todoListService = todoListService;
         }
 
         public IActionResult Index()
         {
             var userId = User.Id();
-            var todoLists = dbContext.RelevantTodoLists(userId);
-            var viewmodel = TodoListIndexViewmodelFactory.Create(todoLists);
+            var viewmodel= _todoListService.GetRelevantTodoListsForUserAsync(userId);
             return View(viewmodel);
         }
 
-        public IActionResult Detail(int todoListId)
+        public async Task<IActionResult> DetailAsync(int todoListId)
         {
-            var todoList = dbContext.SingleTodoList(todoListId);
-            var viewmodel = TodoListDetailViewmodelFactory.Create(todoList);
+            var viewmodel = await _todoListService.GetTodoListDetailsAsync(todoListId);
             return View(viewmodel);
         }
 
@@ -51,13 +48,9 @@ namespace Todo.Controllers
             if (!ModelState.IsValid) { return View(fields); }
 
             var currentUser = await userStore.FindByIdAsync(User.Id(), CancellationToken.None);
+            var TodoListId = await _todoListService.CreateTodoListForUser(currentUser, fields.Title);
 
-            var todoList = new TodoList(currentUser, fields.Title);
-
-            await dbContext.AddAsync(todoList);
-            await dbContext.SaveChangesAsync();
-
-            return RedirectToAction("Create", "TodoItem", new {todoList.TodoListId});
+            return RedirectToAction("Create", "TodoItem", new { TodoListId });
         }
     }
 }
