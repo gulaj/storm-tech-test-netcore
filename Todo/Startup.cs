@@ -43,6 +43,8 @@ namespace Todo
             services.AddScoped<ITodoItemsService, TodoItemsService>();
             services.AddScoped<ITodoListService, TodoListService>();
 
+            services.AddHttpClient<GravatarService>();
+
 
             services.AddControllers();
 
