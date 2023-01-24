@@ -13,6 +13,11 @@
 
     <ul class="list-group">
         <li class="list-group-item">
+            Order by:<a asp-action="Detail" asp-controller="TodoList" asp-route-todoListId="@Model.TodoListId" asp-route-itemsOrderBy="@ItemsOrderBy.Importance" class="btn">Importance</a>
+            <a asp-action="Detail" asp-controller="TodoList" asp-route-todoListId="@Model.TodoListId" asp-route-itemsOrderBy="@ItemsOrderBy.Rank" class="btn">Rank</a>
+            </li>
+        <li class="list-group-item">
+
             <input type="checkbox" id="hide-done" name="Hide Done tasks" /> Hide mareked as Done tasks
         </li>
         <li class="list-group-item">

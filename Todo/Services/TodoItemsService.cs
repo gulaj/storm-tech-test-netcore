@@ -15,9 +15,9 @@ namespace Todo.Services
             _itemsRepository = itemsRepository;
         }
 
-        public async Task CreateTodoItemAsync(int todoListId, string responsiblePartyId, string title, Importance importance)
+        public async Task CreateTodoItemAsync(TodoItemCreateFields fields)
         {
-            var item = new TodoItem(todoListId, responsiblePartyId, title, importance);
+            var item = new TodoItem(fields.TodoListId, fields.ResponsiblePartyId, fields.Title, fields.Importance, fields.Rank);
             await _itemsRepository.AddItemAsync(item);
         }
 

@@ -37,7 +37,7 @@ namespace Todo.Controllers
         public async Task<IActionResult> Create(TodoItemCreateFields fields)
         {
             if (!ModelState.IsValid) { return View(fields); }
-            await _todoItemsService.CreateTodoItemAsync(fields.TodoListId, fields.ResponsiblePartyId, fields.Title, fields.Importance);
+            await _todoItemsService.CreateTodoItemAsync(fields);
 
 
             return RedirectToListDetail(fields.TodoListId);

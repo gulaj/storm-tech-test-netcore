@@ -6,7 +6,7 @@ namespace Todo.Services.Abstract
 {
     public interface ITodoItemsService
     {
-        Task CreateTodoItemAsync(int todoListId, string responsiblePartyId, string title, Importance importance);
+        Task CreateTodoItemAsync(TodoItemCreateFields fields);
         Task<TodoItemEditFields> GetSingleTodoItemAsync(int todoItemId);
         Task UpdateSingleTodoItemAsync(TodoItemEditFields fields);
     }

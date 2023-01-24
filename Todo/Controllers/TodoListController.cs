@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Todo.Data.Entities;
+using Todo.Models;
 using Todo.Models.TodoLists;
 using Todo.Services;
 using Todo.Services.Abstract;
@@ -29,9 +30,9 @@ namespace Todo.Controllers
             return View(viewmodel);
         }
 
-        public async Task<IActionResult> DetailAsync(int todoListId)
+        public async Task<IActionResult> DetailAsync(int todoListId, ItemsOrderBy itemsOrderBy = ItemsOrderBy.Importance)
         {
-            var viewmodel = await _todoListService.GetTodoListDetailsAsync(todoListId);
+            var viewmodel = await _todoListService.GetTodoListDetailsAsync(todoListId, itemsOrderBy);
             return View(viewmodel);
         }
 
@@ -50,7 +51,7 @@ namespace Todo.Controllers
             var currentUser = await userStore.FindByIdAsync(User.Id(), CancellationToken.None);
             var TodoListId = await _todoListService.CreateTodoListForUser(currentUser, fields.Title);
 
-            return RedirectToAction("Create", "TodoItem", new { TodoListId });
+            return RedirectToAction("CreateByImportance", "TodoItem", new { TodoListId });
         }
     }
 }
