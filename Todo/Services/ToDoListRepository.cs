@@ -20,9 +20,7 @@ namespace Todo.Services
         {
             return _dbContext.TodoLists.Include(tl => tl.Owner)
                 .Include(tl => tl.Items)
-                .Where(tl => tl.Owner.Id == userId);
-
-
+                .Where(tl => tl.Owner.Id == userId || tl.Items.Select(c => c.ResponsiblePartyId).Contains(userId));
         }
 
         public async Task<TodoList> GetSingleTodoListAsync(int todoListId)
